@@ -28,9 +28,9 @@ If you want to join us to build the best chinese chess AI in the world:
 
 ## Environment
 
-* Python 3.6.3
-* tensorflow-gpu: 1.3.0
-* Keras: 2.0.8
+* Python 3.8
+* pytorch: 1.8.0
+
 
 
 ## Modules
@@ -189,42 +189,3 @@ options
 
 You can also download Windows executable directly from [here](https://pan.baidu.com/s/1uE_zmkn0x9Be_olRL9U9cQ). For more information, see [wiki](https://github.com/NeymarL/ChineseChess-AlphaZero/wiki/For-Non-Developers#%E4%B8%8B%E6%A3%8B).
 
-**UCI mode**
-
-```
-python cchess_alphazero/uci.py
-```
-
-If you want to play in general GUIs such as '冰河五四', you can download the Windows executable [here](https://share.weiyun.com/5cK50Z4). For more information, see [wiki](https://github.com/NeymarL/ChineseChess-AlphaZero/wiki/For-Non-Developers#%E4%B8%8B%E6%A3%8B).
-
-### Evaluator
-
-```
-python cchess_alphazero/run.py eval
-```
-
-When executed, evaluate the NextGenerationModel with the current BestModel. If the NextGenerationModel does not exist, worker will wait until it exists and check every 5 minutes.
-
-options
-
-* `--type mini`: use mini config, (see `cchess_alphazero/configs/mini.py`)
-* `--gpu '1'`: specify which gpu to use
-
-### Supervised Learning
-
-```
-python cchess_alphazero/run.py sl
-```
-
-When executed, Training will start. The current SLBestModel will be loaded. Tranined model will be saved every epoch as new SLBestModel.
-
-*About the data*
-
-I have two data sources, one is downloaded from https://wx.jcloud.com/market/packet/10479 ; the other is crawled from http://game.onegreen.net/chess/Index.html (with option --onegreen).
-
-options
-
-* `--type mini`: use mini config, (see `cchess_alphazero/configs/mini.py`)
-* `--gpu '1'`: specify which gpu to use
-* `--onegreen`: if set the flag, `sl_onegreen` worker will start to train data crawled from `game.onegreen.net`
-* `--skip SKIP`: if set this flag, games whoses index is less than `SKIP` would not be used to train (only valid when `onegreen` flag is set)
