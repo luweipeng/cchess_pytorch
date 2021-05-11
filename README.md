@@ -42,10 +42,6 @@ This AlphaZero implementation consists of two workers: `self` and  `opt`.
 * `self` is Self-Play to generate training data by self-play using BestModel.
 * `opt` is Trainer to train model, and generate new models.
 
-For the sake of faster training, another two workers are involved:
-
-* `sl` is Supervised learning to train data crawled from the Internet.
-* `eval` is Evaluator to evaluate the NextGenerationModel with the current BestModel.
 
 ### Built-in GUI
 
@@ -71,10 +67,6 @@ You can choose different board/piece styles and sides, see [play with human](#pl
 pip install -r requirements.txt
 ```
 
-If you want to use CPU only, replace `tensorflow-gpu` with `tensorflow` in `requirements.txt`.
-
-Make sure Keras is using Tensorflow and you have Python 3.6.3+.
-
 ### Configuration
 
 **PlayDataConfig**
@@ -96,10 +88,10 @@ usage: run.py [-h] [--new] [--type TYPE] [--total-step TOTAL_STEP]
               [--ucci] [--piece-style {WOOD,POLISH,DELICATE}]
               [--bg-style {CANVAS,DROPS,GREEN,QIANHONG,SHEET,SKELETON,WHITE,WOOD}]
               [--random {none,small,medium,large}] [--distributed] [--elo]
-              {self,opt,eval,play,eval,sl,ob}
+              {self,opt,play,pk}
 
 positional arguments:
-  {self,opt,eval,play,eval,sl,ob}
+  {self,opt,play,pk}
                         what to do
 
 optional arguments:

@@ -6,6 +6,8 @@ from logging import getLogger
 from cchess_alphazero.lib.logger import setup_logger
 from cchess_alphazero.config import Config, PlayWithHumanConfig
 
+import torch
+
 logger = getLogger(__name__)
 
 CMD_LIST = ['self', 'opt', 'eval', 'play', 'eval', 'sl', 'ob','pk']
@@ -66,11 +68,11 @@ def start():
     config.internet.distributed = args.distributed
 
     # # use multiple GPU
-    # gpus = config.opts.device_list.split(',')
-    # if len(gpus) > 1:
-    #     config.opts.use_multiple_gpus = True
-    #     config.opts.gpu_num = len(gpus)
-    #     logger.info(f"User GPU {config.opts.device_list}")
+    gpus = torch.cuda.device_count()
+    if gpus > 1:
+        config.opts.use_multiple_gpus = True
+        config.opts.gpu_num = gpus
+        # logger.info(f"User GPU {config.opts.device_list}")
 
     if args.cmd == 'self':
         # if args.ucci:

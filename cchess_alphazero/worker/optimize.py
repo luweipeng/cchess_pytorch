@@ -136,8 +136,8 @@ class OptimizeWorker:
         # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         # self.model.to(device)
-        # value_ary = torch.to(device)
-        # policy_ary = torch.to(device)
+        # value_ary = value_ary.to(device)
+        # policy_ary = policy_ary.to(device)
 
 
         for i in range(epochs):
@@ -148,7 +148,6 @@ class OptimizeWorker:
             log_act_probs, value = self.model(state_ary)
             # define the loss = (z - v)^2 - pi^T * log(p) + c||theta||^2
             # Note: the L2 penalty is incorporated in optimizer
-
 
             value_loss = F.mse_loss(value.view(-1), value_ary)
             policy_loss = -torch.mean(torch.sum(policy_ary*log_act_probs, 1))

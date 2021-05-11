@@ -51,7 +51,7 @@ class CChessModel(torch.nn.Module):
         self.value_fc1 = nn.Linear(60, self.mc.value_fc_size)
         self.value_fc2 = nn.Linear(self.mc.value_fc_size, 1)
 
-        self.model = self
+        # self.model = self
         
     def _build_residual_block(self, x, i):
         mc = self.config.model
@@ -91,7 +91,7 @@ class CChessModel(torch.nn.Module):
     def load(self, model_path):
         if os.path.exists(model_path) :
             logger.debug(f"loading model from {model_path}")
-            self.model = torch.load(model_path)
+            self = torch.load(model_path)
 
             return True
         else:
@@ -100,8 +100,8 @@ class CChessModel(torch.nn.Module):
 
     def save(self, model_path):
         logger.debug(f"save model to {model_path}")
-        # with open(model_path, "wt") as f:
-        torch.save(self.model, model_path)
+        torch.save(self, model_path)
+        
 
     def get_pipes(self, num=1, api=None, need_reload=True):
         if self.api is None:
@@ -116,101 +116,10 @@ class CChessModel(torch.nn.Module):
 
     def predict_on_batch(self, input):
         # gpu
-        # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         # self.model.to(device)
         with torch.no_grad():
             # input=input.to(device)
-            out = self.model(input)
+            out = self(input)
             return out[0].data, out[1].data
 
-
-
-
-
-#1111
-# class CChessModel(torch.nn.Module):
-
-#     def __init__(self, config: Config):
-#         super(CChessModel, self).__init__()
-#         self.config = config
-#         self.mc = self.config.model
-#         self.digest = None
-#         self.n_labels = len(ActionLabelsRed)
-#         self.graph = None
-#         self.api = None
-
-#         # common layers
-#         self.conv1 = torch.nn.Conv2d(self.mc.input_depth,self.mc.cnn_filter_num,kernel_size=self.mc.cnn_first_filter_size)
-#         self.conv2 = torch.nn.Conv2d(self.mc.cnn_filter_num,self.mc.cnn_filter_num,kernel_size=self.mc.cnn_first_filter_size)
-#         self.conv3 = torch.nn.Conv2d(self.mc.cnn_filter_num,self.mc.cnn_filter_num,kernel_size = (2, 1))
-#         # self.common_batchnorm = torch.nn.BatchNorm2d(num_features,momentum=0.99, affine=True, track_running_stats=True)
-        
-#         # action policy layers
-#         self.policy_conv1 = torch.nn.Conv2d(self.mc.cnn_filter_num,self.mc.cnn_filter_num,kernel_size= (1,1))
-#         self.policy_flatten = torch.nn.Flatten()
-#         self.act_fc1 = nn.Linear(52480,1)
-
-
-#         # state value layers
-#         self.value_conv1 = torch.nn.Conv2d(self.mc.cnn_filter_num,self.mc.cnn_filter_num,kernel_size= (1,1))
-#         self.value_fc1 = nn.Linear(52480,1)
-#         self.value_fc2 = nn.Linear(1,1)
-
-#         self.model = self
-        
-
-#     def forward(self, x):
-        
-#         x = torch.from_numpy(x)
-#         # common layers
-#         x = F.relu(self.conv1(x))
-#         x = F.relu(self.conv2(x))
-#         x = F.relu(self.conv3(x))
-
-#         # action policy layers
-#         x_act = F.relu(self.policy_conv1(x))
-#         x_act = x_act.view(-1, 52480)
-#         x_act = F.log_softmax(self.act_fc1(x_act))
-
-#         # state value layers
-#         x_val = F.relu(self.value_conv1(x))
-#         x_val = x_val.view(-1, 52480)
-#         x_val = F.relu(self.value_fc1(x_val))
-#         x_val = F.tanh(self.value_fc2(x_val))
-
-#         return x_act, x_val
-
-# #    @staticmethod
-# #     def fetch_digest(weight_path):
-# #         if os.path.exists(weight_path):
-# #             m = hashlib.sha256()
-# #             with open(weight_path, "rb") as f:
-# #                 m.update(f.read())
-# #             return m.hexdigest()
-# #         return None
-
-
-#     def load(self, model_path):
-#         if os.path.exists(model_path) :
-#             logger.debug(f"loading model from {model_path}")
-#             self.model = torch.load(model_path)
-
-#             return True
-#         else:
-#             logger.debug(f"model files does not exist at {model_path}")
-#             return False
-
-#     def save(self, model_path):
-#         logger.debug(f"save model to {model_path}")
-#         torch.save(self.model, model_path)
-
-#     def get_pipes(self, num=1, api=None, need_reload=True):
-#         if self.api is None:
-#             self.api = CChessModelAPI(self.config, self)
-#             self.api.start(need_reload)
-#         return self.api.get_pipe(need_reload)
-
-#     def close_pipes(self):
-#         if self.api is not None:
-#             self.api.close()
-#             self.api = None

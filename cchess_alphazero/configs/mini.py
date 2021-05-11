@@ -26,7 +26,7 @@ class PlayDataConfig:
     def __init__(self):
         self.sl_nb_game_in_file = 250
         self.nb_game_in_file = 1
-        self.max_file_num = 50
+        self.max_file_num = 1000000
         self.nb_game_save_record = 1
 
 
