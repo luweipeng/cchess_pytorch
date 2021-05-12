@@ -87,6 +87,7 @@ class Options:
     random = 'none'
     log_move = False
     use_multiple_gpus = False
+    use_gpu = False
     gpu_num = 1
     evaluate = False
     has_history = False

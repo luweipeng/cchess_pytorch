@@ -21,22 +21,16 @@ from cchess_alphazero.lib.model_helper import load_best_model_weight, save_as_be
 from cchess_alphazero.lib.model_helper import need_to_reload_best_model_weight, save_as_next_generation_model, save_as_best_model
 from cchess_alphazero.environment.env import CChessEnv
 from cchess_alphazero.environment.lookup_tables import Winner, ActionLabelsRed, flip_policy, flip_move
-# from cchess_alphazero.lib.tf_util import set_session_config
 from cchess_alphazero.lib.web_helper import http_request
 
 import torch
 import torch.nn.functional as F
+from torch.autograd import Variable
 
-
-# from keras.optimizers import SGD
-# from keras.callbacks import TensorBoard
-# from keras.utils import multi_gpu_model
-# import keras.backend as K
 
 logger = getLogger(__name__)
 
 def start(config: Config):
-    # set_session_config(per_process_gpu_memory_fraction=1, allow_growth=True, device_list=config.opts.device_list)
     return OptimizeWorker(config).start()
 
 class OptimizeWorker:
@@ -114,31 +108,19 @@ class OptimizeWorker:
     def train_epoch(self, epochs):
         tc = self.config.trainer
         state_ary, policy_ary, value_ary = self.collect_all_loaded_data()
-        # tensorboard_cb = TensorBoard(log_dir="./logs", batch_size=tc.batch_size, histogram_freq=1)
-
+        
+        steps = (state_ary.shape[0] // tc.batch_size) * epochs
 
         # wrap in Variable
-        # if self.config.opts.use_multiple_gpus:
-        #     state_batch = Variable(torch.FloatTensor(state_batch).cuda())
-        #     mcts_probs = Variable(torch.FloatTensor(mcts_probs).cuda())
-        #     winner_batch = Variable(torch.FloatTensor(winner_batch).cuda())
-        # else:
-        #     state_batch = Variable(torch.FloatTensor(state_batch))
-        #     mcts_probs = Variable(torch.FloatTensor(mcts_probs))
-        #     winner_batch = Variable(torch.FloatTensor(winner_batch))
-         
-        steps = (state_ary.shape[0] // tc.batch_size) * epochs
-        
-        value_ary = torch.from_numpy(value_ary)
-        policy_ary = torch.from_numpy(policy_ary)
-
-        # gpu
-        # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-        # self.model.to(device)
-        # value_ary = value_ary.to(device)
-        # policy_ary = policy_ary.to(device)
-
+        if self.config.opts.use_gpu:
+            self.model = self.model.cuda()
+            state_ary = Variable(torch.FloatTensor(state_ary).cuda())
+            policy_ary = Variable(torch.FloatTensor(policy_ary).cuda())
+            value_ary = Variable(torch.FloatTensor(value_ary).cuda())
+        else:
+            state_ary = Variable(torch.FloatTensor(state_ary))
+            policy_ary = Variable(torch.FloatTensor(policy_ary))
+            value_ary = Variable(torch.FloatTensor(value_ary))
 
         for i in range(epochs):
             # zero the parameter gradients
@@ -167,14 +149,7 @@ class OptimizeWorker:
         return steps
 
     def compile_model(self):
-        # self.opt = SGD(lr=0.02, momentum=self.config.trainer.momentum)
         self.opt = torch.optim.SGD(self.model.parameters(), lr=0.02, momentum=self.config.trainer.momentum)
-        # losses = ['categorical_crossentropy', 'mean_squared_error']
-        # if self.config.opts.use_multiple_gpus:
-        #     self.mg_model = multi_gpu_model(self.model.model, gpus=self.config.opts.gpu_num)
-        #     self.mg_model.compile(optimizer=self.opt, loss=losses, loss_weights=self.config.trainer.loss_weights)
-        # else:
-        #     self.model.model.compile(optimizer=self.opt, loss=losses, loss_weights=self.config.trainer.loss_weights)
 
     def update_learning_rate(self, total_steps):
         # The deepmind paper says

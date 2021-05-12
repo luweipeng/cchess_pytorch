@@ -33,7 +33,6 @@ data = None
 futures =[]
 
 def start(config: Config):
-    # set_session_config(per_process_gpu_memory_fraction=1, allow_growth=True, device_list=config.opts.device_list)
     return SelfPlayWorker(config).start()
 
 class SelfPlayWorker:
@@ -94,7 +93,6 @@ class SelfPlayWorker:
     def load_model(self, model_file=None):
         use_history = False
         model = CChessModel(self.config)
-        # weight_path = self.config.resource.model_best_weight_path
         if not model_file:
             model_path = self.config.resource.model_best_path
             use_history = False

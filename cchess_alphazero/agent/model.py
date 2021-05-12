@@ -36,15 +36,15 @@ class CChessModel(torch.nn.Module):
         self.api = None
 
         # common layers
-        self.conv1 = torch.nn.Conv2d(self.mc.input_depth,self.mc.cnn_filter_num,kernel_size=self.mc.cnn_first_filter_size)
-        self.residual_conv_list = [torch.nn.Conv2d(self.mc.cnn_filter_num, self.mc.cnn_filter_num, kernel_size = self.mc.cnn_filter_size, padding = 1) for _ in range(self.mc.res_layer_num * 2)]
+        self.conv1 = torch.nn.Conv2d(self.mc.input_depth,self.mc.cnn_filter_num,kernel_size=self.mc.cnn_first_filter_size)        
+        for i in range(self.mc.res_layer_num * 2):
+            exec("self.res%s=torch.nn.Conv2d(self.mc.cnn_filter_num, self.mc.cnn_filter_num, kernel_size = self.mc.cnn_filter_size, padding = 1)"%i)
         # self.common_batchnorm = torch.nn.BatchNorm2d(num_features,momentum=0.99, affine=True, track_running_stats=True)
         
         # action policy layers
         self.policy_conv1 = torch.nn.Conv2d(self.mc.cnn_filter_num, 4, kernel_size= 1)
         self.policy_flatten = torch.nn.Flatten()
         self.act_fc1 = nn.Linear(120, self.n_labels)
-
 
         # state value layers
         self.value_conv1 = torch.nn.Conv2d(self.mc.cnn_filter_num,2,kernel_size= 1)
@@ -53,25 +53,19 @@ class CChessModel(torch.nn.Module):
 
         # self.model = self
         
-    def _build_residual_block(self, x, i):
-        mc = self.config.model
-        in_x = x
-        res_name = "res" + str(i)
-        x = self.residual_conv_list[i*2](x)
-        x = F.relu(x)
-        x = self.residual_conv_list[i*2+1](x)
-        x = torch.add(in_x, x)
-        x = F.relu(x)
-        return x
 
     def forward(self, x):
-        
-        x = torch.from_numpy(x)
 
         # common layers
         x = F.relu(self.conv1(x))
         for i in range(self.mc.res_layer_num):
-            x = self._build_residual_block(x, i)
+            # x = self._build_residual_block(x, i)
+            in_x = x
+            exec("self.res%s(x)"%(i*2))
+            x = F.relu(x)
+            exec("self.res%s(x)"%(i*2+1))
+            x = torch.add(in_x, x)
+            x = F.relu(x)
         res_out = x
 
         # action policy layers
@@ -115,11 +109,18 @@ class CChessModel(torch.nn.Module):
             self.api = None
 
     def predict_on_batch(self, input):
-        # gpu
-        # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-        # self.model.to(device)
+
+        if self.config.opts.use_gpu:
+            input = Variable(torch.FloatTensor(input).cuda())
+            self = self.cuda()
+        else:
+            input = Variable(torch.FloatTensor(input))
+
         with torch.no_grad():
-            # input=input.to(device)
+
             out = self(input)
+            if self.config.opts.use_gpu:
+                out[0].data = out[0].data.cpu()
+                out[1].data = out[1].data.cpu()
             return out[0].data, out[1].data
 

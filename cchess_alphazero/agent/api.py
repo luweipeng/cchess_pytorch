@@ -60,7 +60,7 @@ class CChessModelAPI:
             if not data:
                 continue
             data = np.asarray(data, dtype=np.float32)
-            policy_ary, value_ary = self.agent_model.model.predict_on_batch(data)
+            policy_ary, value_ary = self.agent_model.predict_on_batch(data)
             buf = []
             k, i = 0, 0
             for p, v in zip(policy_ary, value_ary):

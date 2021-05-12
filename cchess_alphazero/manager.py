@@ -72,7 +72,10 @@ def start():
     if gpus > 1:
         config.opts.use_multiple_gpus = True
         config.opts.gpu_num = gpus
+        config.opts.use_gpu = True
         # logger.info(f"User GPU {config.opts.device_list}")
+    elif gpus == 1:
+        config.opts.use_gpu = True
 
     if args.cmd == 'self':
         # if args.ucci:
