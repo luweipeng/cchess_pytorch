@@ -29,7 +29,6 @@ logger = getLogger(__name__)
 def load_model(config, model_file=None):
     use_history = False
     model = CChessModel(config)
-    weight_path = config.resource.model_best_weight_path
     if not model_file:
         config_path = config.resource.model_best_path
         use_history = False

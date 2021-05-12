@@ -81,10 +81,11 @@ def start():
         # if args.ucci:
         #     import cchess_alphazero.worker.play_with_ucci_engine as self_play
         # else:
-        if mp.get_start_method() == 'spawn':
-            import cchess_alphazero.worker.self_play_windows as self_play
-        else:
-            from cchess_alphazero.worker import self_play
+        # if mp.get_start_method() == 'spawn':
+        #     import cchess_alphazero.worker.self_play_windows as self_play
+        # else:
+        #     from cchess_alphazero.worker import self_play
+        import cchess_alphazero.worker.self_play_windows as self_play
         return self_play.start(config)
     elif args.cmd == 'opt':
         from cchess_alphazero.worker import optimize

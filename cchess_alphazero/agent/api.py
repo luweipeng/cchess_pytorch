@@ -39,9 +39,9 @@ class CChessModelAPI:
             self.try_reload_model_from_internet()
         last_model_check_time = time()
         while not self.done:
-            if last_model_check_time + 600 < time() and self.need_reload:
-                self.try_reload_model()
-                last_model_check_time = time()
+            # if last_model_check_time + 600 < time() and self.need_reload:
+            #     self.try_reload_model()
+            #     last_model_check_time = time()
             ready = connection.wait(self.pipes, timeout=0.001)
             if not ready:
                 continue
